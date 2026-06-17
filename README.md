@@ -359,5 +359,6 @@ Este proyecto está bajo la Licencia **MIT**. Consulta el archivo `LICENSE` para
 
 **☕ Desarrollado con ❤️ para la asignatura de Desarrollo de Software Seguro.**  
 **👨🏻‍💻 Desarrollado por: Jeremy Jácome & Alberto Falconí**
+
 **🎓 Pontificia Universidad Católica del Ecuador Sede Ambato (PUCESA)**  
 **📅 Año: 2026**
