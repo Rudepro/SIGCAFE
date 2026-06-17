@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Auditoría{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="bi bi-shield-lock-fill me-2"></i>Log de Auditoría</h1>
+        <p class="page-subtitle">Registro inmutable de todas las acciones del sistema</p>
+    </div>
+    <span class="badge bg-secondary py-2 px-3">
+        <i class="bi bi-lock me-1"></i>Solo lectura
+    </span>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body py-3">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-sm-4">
+                <label class="form-label">Módulo</label>
+                <select class="form-select form-select-sm" name="modulo">
+                    <option value="">— Todos —</option>
+                    {% for m in modulos %}
+                    <option value="{{ m }}" {{ 'selected' if m == modulo_filtro }}>{{ m|capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-5">
+                <label class="form-label">Buscar Acción</label>
+                <input type="text" class="form-control form-control-sm" name="accion"
+                       value="{{ accion_filtro }}" placeholder="Ej: LOGIN, VENTA...">
+            </div>
+            <div class="col-sm-3">
+                <button type="submit" class="btn btn-sm btn-sigcafe w-100">
+                    <i class="bi bi-search me-1"></i>Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header-sigcafe">
+        <i class="bi bi-list-check me-2"></i>Registros de Auditoría
+        <span class="badge bg-light text-dark ms-auto">{{ registros|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive" style="max-height:600px;overflow-y:auto">
+            <table class="table table-striped table-hover mb-0 small">
+                <thead>
+                    <tr>
+                        <th>Fecha / Hora</th>
+                        <th>Usuario</th>
+                        <th>Módulo</th>
+                        <th>Acción</th>
+                        <th>Descripción</th>
+                        <th>IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in registros %}
+                    <tr>
+                        <td class="text-muted" style="white-space:nowrap">
+                            {{ r.fecha_hora.strftime('%d/%m/%Y %H:%M:%S') }}
+                        </td>
+                        <td>{{ r.usuario_resp.nombre if r.usuario_resp else '<sistema>' }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ r.modulo }}</span>
+                        </td>
+                        <td>
+                            <code class="{{ 'text-danger' if 'ELIMINAR' in r.accion or 'FALLIDO' in r.accion else ('text-success' if 'LOGIN_EXITOSO' in r.accion else 'text-primary') }}">
+                                {{ r.accion }}
+                            </code>
+                        </td>
+                        <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+                            title="{{ r.descripcion }}">
+                            {{ r.descripcion or '—' }}
+                        </td>
+                        <td class="text-muted">{{ r.ip_address or '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if not registros %}
+        <div class="text-center p-4 text-muted">No hay registros de auditoría.</div>
+        {% endif %}
+    </div>
+</div>
+<div class="alert alert-warning mt-3 py-2 small">
+    <i class="bi bi-shield-exclamation me-1"></i>
+    <strong>Integridad:</strong> Los registros de auditoría son de solo lectura y no pueden ser eliminados por ningún rol.
+</div>
+{% endblock %}

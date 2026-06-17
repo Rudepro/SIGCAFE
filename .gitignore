@@ -1,0 +1,78 @@
+# PYTHON
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+*.so
+
+# ENTORNOS VIRTUALES
+venv/
+env/
+.venv/
+.env_folder/
+ENV/
+env.bak/
+venv.bak/
+
+# VARIABLES DE ENTORNO Y SECRETOS
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.cert
+secrets.py
+
+# BASE DE DATOS
+*.db
+*.sqlite
+*.sqlite3
+/data/*.db
+
+# LOGS
+logs/
+*.log
+/logs/*.log
+
+# DOCKER
+.docker/
+
+# IDEs Y EDITORES
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# FLASK
+instance/
+.webassets-cache
+flask_session/
+
+# TESTING
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# OTROS
+*.bak
+*.tmp
+node_modules/
+
+# Archivos que SÍ deben subirse a Git:
+# ✅ .env.example (sin valores reales)
+# ✅ requirements.txt
+# ✅ Dockerfile
+# ✅ docker-compose.yml
+# ✅ seed.py
+# ✅ README.md
+# ✅ Todo el código fuente .py y .html

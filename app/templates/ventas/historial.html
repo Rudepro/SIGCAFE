@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Historial de Ventas{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="bi bi-clock-history me-2"></i>Historial de Ventas</h1>
+        <p class="page-subtitle">
+            {% if current_user.rol == 'vendedor' %}Tus ventas registradas{% else %}Todas las ventas del sistema{% endif %}
+        </p>
+    </div>
+    <a href="{{ url_for('ventas.nueva') }}" class="btn btn-sigcafe">
+        <i class="bi bi-cart-plus me-1"></i>Nueva Venta
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header-sigcafe">
+        <i class="bi bi-list-ul me-2"></i>Ventas
+        <span class="badge bg-light text-dark ms-auto">{{ ventas|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Transacción</th>
+                        <th>Cajero</th>
+                        <th>Fecha / Hora</th>
+                        <th>Método</th>
+                        <th>Estado</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-center">Detalle</th>
+                        {% if current_user.rol == 'admin' %}
+                        <th class="text-center">Eliminar</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in ventas %}
+                    <tr>
+                        <td><code>{{ v.numero_transaccion[:8].upper() }}</code></td>
+                        <td>{{ v.cajero.nombre if v.cajero else '—' }}</td>
+                        <td>{{ v.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            <span class="badge {% if v.metodo_pago == 'efectivo' %}bg-success{% elif v.metodo_pago == 'tarjeta' %}bg-primary{% elif v.metodo_pago == 'transferencia' %}bg-info text-dark{% else %}bg-warning text-dark{% endif %}">
+                                {{ v.metodo_pago }}
+                            </span>
+                        </td>
+                        <td><span class="badge bg-success">{{ v.estado }}</span></td>
+                        <td class="text-end fw-bold text-primary">${{ "%.2f"|format(v.total) }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('ventas.detalle', venta_id=v.id) }}"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                        {% if current_user.rol == 'admin' %}
+                        <td class="text-center">
+                            <form method="POST" action="{{ url_for('ventas.eliminar', venta_id=v.id) }}"
+                                  class="d-inline"
+                                  onsubmit="return confirm('¿Eliminar esta venta?')">
+                                {{ form.hidden_tag() }}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if not ventas %}
+        <div class="text-center p-4">
+            <i class="bi bi-cart-x text-muted" style="font-size:2rem"></i>
+            <p class="text-muted mt-2">No hay ventas registradas.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

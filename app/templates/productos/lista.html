@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Inventario{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="bi bi-box-seam me-2"></i>Catálogo de Productos</h1>
+        <p class="page-subtitle">Gestión de ítems disponibles en cafetería</p>
+    </div>
+    {% if current_user.rol in ['admin', 'bodeguero'] %}
+    <a href="{{ url_for('productos.crear') }}" class="btn btn-sigcafe">
+        <i class="bi bi-plus-lg me-1"></i>Nuevo Producto
+    </a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header-sigcafe">
+        <i class="bi bi-list-ul me-2"></i>Productos Activos
+        <span class="badge bg-light text-dark ms-auto">{{ productos|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th class="text-end">Precio</th>
+                        <th class="text-center">Stock</th>
+                        <th>Vencimiento</th>
+                        {% if current_user.rol in ['admin', 'bodeguero'] %}
+                        <th class="text-center">Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in productos %}
+                    <tr>
+                        <td><strong>{{ p.nombre }}</strong></td>
+                        <td><span class="badge bg-secondary">{{ p.categoria }}</span></td>
+                        <td class="text-end fw-bold">${{ "%.2f"|format(p.precio) }}</td>
+                        <td class="text-center">
+                            <span class="fw-bold {{ 'text-danger' if p.stock_bajo else 'text-success' }}">
+                                {{ p.stock_actual }}
+                            </span> <small class="text-muted">{{ p.unidad_medida }}</small>
+                        </td>
+                        <td>
+                            {% if p.fecha_vencimiento %}
+                                <span class="{{ 'text-warning fw-bold' if p.proximo_vencer else '' }}">
+                                    {{ p.fecha_vencimiento.strftime('%d/%m/%Y') }}
+                                </span>
+                            {% else %}—{% endif %}
+                        </td>
+                        {% if current_user.rol in ['admin', 'bodeguero'] %}
+                        <td class="text-center">
+                            <a href="{{ url_for('productos.editar', producto_id=p.id) }}"
+                               class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            {% if current_user.rol == 'admin' %}
+                            <form method="POST" action="{{ url_for('productos.eliminar', producto_id=p.id) }}"
+                                  class="d-inline"
+                                  onsubmit="return confirm('¿Eliminar producto {{ p.nombre }}?')">
+                                {{ form.hidden_tag() }}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if not productos %}
+        <div class="text-center p-4">
+            <i class="bi bi-box-seam text-muted" style="font-size: 2rem;"></i>
+            <p class="text-muted mt-2">No hay productos registrados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

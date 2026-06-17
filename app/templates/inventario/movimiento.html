@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Registrar Movimiento{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="bi bi-arrow-left-right me-2"></i>Registrar Movimiento</h1>
+        <p class="page-subtitle">Entrada o salida de inventario</p>
+    </div>
+    <a href="{{ url_for('inventario.lista') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Volver
+    </a>
+</div>
+
+{% if current_user.rol == 'cocina' %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    Como <strong>Cocina</strong>, solo puedes registrar <strong>salidas</strong> autorizadas.
+</div>
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header-sigcafe"><i class="bi bi-pencil-fill me-2"></i>Datos del Movimiento</div>
+            <div class="card-body p-4">
+                <form method="POST" novalidate id="movForm">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        <label for="producto_select" class="form-label">Producto *</label>
+                        <select class="form-select" id="producto_select" required>
+                            <option value="">— Seleccionar producto —</option>
+                            {% for p in productos %}
+                            <option value="{{ p.id }}" data-stock="{{ p.stock_actual }}" data-unidad="{{ p.unidad_medida }}">
+                                {{ p.nombre }} (Stock: {{ p.stock_actual }} {{ p.unidad_medida }}s)
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% for error in form.producto_id.errors %} <span class="text-danger small">{{ error }}</span> {% endfor %}
+                    </div>
+
+                    <div class="mb-3" id="stockActualBox" style="display:none">
+                        <div class="alert alert-secondary p-2 mb-0 small">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Stock disponible: <strong id="stockDisponible">—</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.tipo.label(class="form-label") }}
+                        {% if current_user.rol == 'cocina' %}
+                        <select class="form-select" id="tipo" name="tipo" required>
+                            <option value="salida">Salida</option>
+                        </select>
+                        {% else %}
+                        {{ form.tipo(class="form-select") }}
+                        {% endif %}
+                        {% for error in form.tipo.errors %} <span class="text-danger small">{{ error }}</span> {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.cantidad.label(class="form-label") }}
+                        {{ form.cantidad(class="form-control", placeholder="0") }}
+                        {% for error in form.cantidad.errors %} <span class="text-danger small">{{ error }}</span> {% endfor %}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.motivo.label(class="form-label") }}
+                        <select class="form-select mb-2" id="motivoSelect" onchange="syncMotivo()">
+                            {% for m in motivos %}
+                            <option value="{{ m }}">{{ m }}</option>
+                            {% endfor %}
+                            <option value="custom">Otro (escribir)</option>
+                        </select>
+                        {{ form.motivo(class="form-control", placeholder="Describe el motivo del movimiento") }}
+                        {% for error in form.motivo.errors %} <span class="text-danger small">{{ error }}</span> {% endfor %}
+                    </div>
+
+                    <button type="submit" class="btn btn-sigcafe w-100" onclick="preSubmit()">
+                        <i class="bi bi-save-fill me-2"></i>Registrar Movimiento
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('producto_select').addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        const stock = opt.dataset.stock;
+        const unidad = opt.dataset.unidad;
+        document.getElementById('producto_id').value = opt.value;
+        
+        if (opt.value) {
+            document.getElementById('stockActualBox').style.display = '';
+            document.getElementById('stockDisponible').textContent = `${stock} ${unidad}s`;
+        } else {
+            document.getElementById('stockActualBox').style.display = 'none';
+        }
+    });
+
+    function syncMotivo() {
+        const sel = document.getElementById('motivoSelect');
+        const inp = document.getElementById('motivo');
+        if (sel.value !== 'custom') {
+            inp.value = sel.value;
+        } else {
+            inp.value = '';
+            inp.focus();
+        }
+    }
+
+    function preSubmit() {
+        document.getElementById('producto_id').value = document.getElementById('producto_select').value;
+    }
+
+    // Pre-fill on load
+    if (!document.getElementById('motivo').value && document.getElementById('motivoSelect').options.length > 0) {
+        document.getElementById('motivo').value = document.getElementById('motivoSelect').value;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  sigcafe:
+    build: .
+    container_name: sigcafe_app
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    env_file:
+      - .env
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp

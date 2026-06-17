@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Usuarios{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="bi bi-people-fill me-2"></i>Gestión de Usuarios</h1>
+        <p class="page-subtitle">Administra los accesos al sistema</p>
+    </div>
+    <a href="{{ url_for('usuarios.crear') }}" class="btn btn-sigcafe">
+        <i class="bi bi-person-plus-fill me-1"></i>Nuevo Usuario
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header-sigcafe">
+        <i class="bi bi-table me-2"></i>Listado de Usuarios
+        <span class="badge bg-light text-dark ms-auto">{{ usuarios|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Creado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td class="text-muted">{{ u.id }}</td>
+                        <td><strong>{{ u.nombre }}</strong></td>
+                        <td>{{ u.email }}</td>
+                        <td><span class="badge badge-rol badge-{{ u.rol }}">{{ u.rol }}</span></td>
+                        <td>
+                            {% if u.activo %}<span class="badge bg-success">Activo</span>
+                            {% else %}<span class="badge bg-secondary">Inactivo</span>{% endif %}
+                        </td>
+                        <td class="text-muted small">{{ u.fecha_creacion.strftime('%d/%m/%Y') }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('usuarios.editar', usuario_id=u.id) }}"
+                               class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('usuarios.eliminar', usuario_id=u.id) }}"
+                                  class="d-inline"
+                                  onsubmit="return confirm('¿Desactivar al usuario {{ u.nombre }}?')">
+                                {{ form.hidden_tag() }}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" {% if u.id == current_user.id %}disabled{% endif %}>
+                                    <i class="bi bi-person-x-fill"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

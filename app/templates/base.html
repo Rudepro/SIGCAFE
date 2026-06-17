@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SIGCAFE - Sistema de Gestión Integral para Cafetería Universitaria Café Central">
+    <title>{% block title %}SIGCAFE{% endblock %} | Café Central</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/sigcafe_logo.png') }}">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sigcafe-dark: #2A1B14;
+            --sigcafe-mid: #523A28;
+            --sigcafe-light: #A07855;
+            --sigcafe-accent: #E08E36;
+            --sigcafe-bg: #FDFBF7;
+            --sidebar-width: 260px;
+        }
+
+        * { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .topbar-brand, .stat-value, .page-title, .card-header-sigcafe {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--sigcafe-bg);
+            background-image: radial-gradient(circle at 0% 0%, rgba(224, 142, 54, 0.04), transparent 30%),
+                              radial-gradient(circle at 100% 100%, rgba(82, 58, 40, 0.05), transparent 30%);
+            min-height: 100vh;
+            color: #2A1B14;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            height: 70px;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1040;
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            box-shadow: 0 4px 20px rgba(42, 27, 20, 0.04);
+            border-bottom: 1px solid rgba(224, 142, 54, 0.1);
+        }
+
+        .topbar-brand {
+            color: var(--sigcafe-dark);
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .topbar-brand img {
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(224, 142, 54, 0.2);
+        }
+        .topbar-brand:hover { color: var(--sigcafe-accent); }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-info { color: #523A28; font-size: .85rem; line-height: 1.3; }
+        .user-info strong { font-weight: 700; color: var(--sigcafe-dark); display: block; font-size: .95rem; }
+
+        .badge-rol {
+            font-size: .7rem;
+            padding: .3rem .6rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            border: 1px solid transparent;
+        }
+
+        .badge-admin      { background: rgba(220, 53, 69, 0.1); color: #dc3545; border-color: rgba(220, 53, 69, 0.2); }
+        .badge-cajero     { background: rgba(13, 110, 253, 0.1); color: #0d6efd; border-color: rgba(13, 110, 253, 0.2); }
+        .badge-vendedor   { background: rgba(25, 135, 84, 0.1); color: #198754; border-color: rgba(25, 135, 84, 0.2); }
+        .badge-cocina     { background: rgba(224, 142, 54, 0.15); color: #d97706; border-color: rgba(224, 142, 54, 0.3); }
+        .badge-bodeguero  { background: rgba(111, 66, 193, 0.1); color: #6f42c1; border-color: rgba(111, 66, 193, 0.2); }
+
+        .btn-logout {
+            background: #FDFBF7;
+            border: 1px solid #EBE5D9;
+            color: #806A5F;
+            font-size: .85rem; font-weight: 600;
+            padding: .4rem 1rem;
+            border-radius: 10px;
+            transition: all .2s;
+        }
+        .btn-logout:hover {
+            background: #FFF0E6;
+            color: var(--sigcafe-accent);
+            border-color: rgba(224, 142, 54, 0.3);
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            position: fixed;
+            top: 70px; left: 0; bottom: 0;
+            width: var(--sidebar-width);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(224, 142, 54, 0.1);
+            overflow-y: auto;
+            z-index: 1030;
+            padding: 1.5rem 1rem;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(82, 58, 40, 0.1); border-radius: 10px; }
+        .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(82, 58, 40, 0.2); }
+
+        .sidebar-section {
+            padding: .5rem 1rem .25rem;
+            font-size: .7rem;
+            font-weight: 700;
+            color: #A07855;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: .85rem;
+            padding: .65rem 1rem;
+            color: #523A28;
+            text-decoration: none;
+            font-size: .95rem;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all .25s ease;
+            margin-bottom: 0.2rem;
+        }
+
+        .sidebar-link:hover {
+            background: #FFF0E6;
+            color: var(--sigcafe-accent);
+            transform: translateX(4px);
+        }
+
+        .sidebar-link.active {
+            background: linear-gradient(135deg, var(--sigcafe-accent), #D07B28);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(224, 142, 54, 0.25);
+        }
+
+        .sidebar-link i { font-size: 1.1rem; width: 22px; text-align: center; }
+
+        .sidebar-divider {
+            border: none;
+            border-top: 1px dashed rgba(224, 142, 54, 0.2);
+            margin: 1rem 0;
+        }
+
+        /* ── MAIN CONTENT ── */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: 70px;
+            padding: 2rem;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* ── CARDS ── */
+        .card {
+            border: 1px solid rgba(224, 142, 54, 0.1);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 30px rgba(42, 27, 20, 0.04);
+            overflow: hidden;
+        }
+
+        .card-header-sigcafe {
+            background: #fff;
+            color: var(--sigcafe-dark);
+            border-bottom: 1px solid rgba(224, 142, 54, 0.1);
+            padding: 1.25rem 1.5rem;
+            font-weight: 700;
+            font-size: 1.15rem;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(224, 142, 54, 0.1);
+            box-shadow: 0 8px 30px rgba(42, 27, 20, 0.03);
+            transition: transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow .3s;
+            position: relative; overflow: hidden;
+        }
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--sigcafe-accent); opacity: 0; transition: opacity .3s;
+        }
+        .stat-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 15px 35px rgba(42, 27, 20, 0.08); 
+        }
+        .stat-card:hover::before { opacity: 1; }
+
+        .stat-card .stat-icon {
+            width: 56px; height: 56px;
+            border-radius: 14px;
+            background: #FFF0E6; color: var(--sigcafe-accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2rem; font-weight: 800; line-height: 1; color: var(--sigcafe-dark);
+        }
+
+        .stat-card .stat-label {
+            font-size: .9rem; color: #806A5F; font-weight: 500; margin-top: .5rem;
+        }
+
+        /* ── PAGE TITLE ── */
+        .page-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem; font-weight: 800; color: var(--sigcafe-dark); margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .page-subtitle { font-size: .95rem; color: #A07855; margin: 0.25rem 0 0; font-weight: 500; }
+
+        /* ── ALERTS ── */
+        .alert { border-radius: 12px; border: none; font-weight: 500; }
+        .alert-stock { background: #FFF0F0; color: #C53030; border-left: 4px solid #F56565; }
+        .alert-vence  { background: #FFFaf0; color: #DD6B20; border-left: 4px solid #ED8936; }
+        .alert-caja   { background: #FFFFF0; color: #B7791F; border-left: 4px solid #ECC94B; }
+
+        /* ── TABLES ── */
+        .table-responsive { border-radius: 12px; overflow: hidden; border: 1px solid rgba(224, 142, 54, 0.1); }
+        .table { margin: 0; font-size: .95rem; }
+        .table thead th {
+            background: #FDFBF7;
+            color: #806A5F;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(224, 142, 54, 0.1);
+            padding: 1rem;
+            text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px;
+        }
+        .table tbody td { vertical-align: middle; padding: 1rem; color: #2A1B14; font-weight: 500; border-bottom: 1px solid #F3F0EB; }
+        .table-striped tbody tr:nth-of-type(odd) { background: #FFFcf9; }
+        .table-hover tbody tr:hover { background: #FFF0E6; }
+
+        /* ── BUTTONS ── */
+        .btn { border-radius: 10px; font-weight: 600; font-size: .9rem; padding: 0.5rem 1.25rem; transition: all .2s; }
+        .btn-sigcafe {
+            background: linear-gradient(135deg, var(--sigcafe-accent), #D07B28);
+            color: #fff; border: none;
+            box-shadow: 0 4px 12px rgba(224, 142, 54, 0.25);
+        }
+        .btn-sigcafe:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(224, 142, 54, 0.35); color: #fff; }
+
+        /* ── BADGES ── */
+        .badge { font-size: .75rem; padding: .4rem .75rem; border-radius: 8px; font-weight: 600; }
+
+        /* ── FORM ── */
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #EBE5D9;
+            font-size: .95rem; padding: 0.6rem 1rem;
+            transition: all .2s; background: #fff;
+            color: #2A1B14; font-weight: 500;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--sigcafe-accent);
+            box-shadow: 0 0 0 4px rgba(224, 142, 54, 0.15);
+        }
+        .form-label { font-weight: 600; font-size: .9rem; color: #523A28; margin-bottom: 0.4rem; }
+
+        /* ── FLASH MESSAGES ── */
+        .flash-container {
+            position: fixed; top: 85px; right: 1.5rem;
+            z-index: 2000; width: 380px;
+        }
+
+        .flash-toast {
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(42, 27, 20, 0.1);
+            animation: slideIn .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none; padding: 1rem 1.25rem;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); transition: transform .3s; }
+            .sidebar.open { transform: translateX(0); box-shadow: 10px 0 30px rgba(42,27,20,0.1); }
+            .main-content { margin-left: 0; padding: 1.25rem; }
+            .topbar { padding: 0 1rem; }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Flash Messages -->
+<div class="flash-container" id="flashContainer">
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible flash-toast mb-2" role="alert">
+                <i class="bi bi-{% if category == 'success' %}check-circle-fill{% elif category == 'danger' %}x-circle-fill{% elif category == 'warning' %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+{% if current_user.is_authenticated %}
+<!-- TOPBAR -->
+<nav class="topbar">
+    <a class="topbar-brand d-flex align-items-center gap-2" href="{{ url_for('dashboard.index') }}">
+        <img src="{{ url_for('static', filename='img/sigcafe_logo.png') }}" alt="Logo" width="30" height="30" class="d-inline-block align-text-top rounded-circle bg-white">
+        SIGCAFE
+    </a>
+    <div class="topbar-right">
+        <div class="user-info text-end">
+            <div><strong>{{ current_user.nombre }}</strong></div>
+            <span class="badge-rol badge-{{ current_user.rol }}">{{ current_user.rol }}</span>
+        </div>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-logout">
+            <i class="bi bi-box-arrow-right me-1"></i>Salir
+        </a>
+    </div>
+</nav>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+    <p class="sidebar-section">Principal</p>
+    <a class="sidebar-link {{ 'active' if request.endpoint == 'dashboard.index' }}"
+       href="{{ url_for('dashboard.index') }}">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+
+    {% if current_user.rol in ['admin', 'cajero', 'vendedor'] %}
+    <hr class="sidebar-divider">
+    <p class="sidebar-section">Ventas</p>
+    <a class="sidebar-link {{ 'active' if 'ventas' in request.endpoint }}"
+       href="{{ url_for('ventas.nueva') }}">
+        <i class="bi bi-cart-plus-fill"></i> Nueva Venta
+    </a>
+    <a class="sidebar-link {{ 'active' if request.endpoint == 'ventas.historial' }}"
+       href="{{ url_for('ventas.historial') }}">
+        <i class="bi bi-clock-history"></i> Historial
+    </a>
+    {% endif %}
+
+    {% if current_user.rol in ['admin', 'cajero'] %}
+    <hr class="sidebar-divider">
+    <p class="sidebar-section">Caja</p>
+    <a class="sidebar-link {{ 'active' if request.endpoint == 'caja.resumen' }}"
+       href="{{ url_for('caja.resumen') }}">
+        <i class="bi bi-cash-stack"></i> Resumen del Día
+    </a>
+    <a class="sidebar-link {{ 'active' if request.endpoint == 'caja.cierre' }}"
+       href="{{ url_for('caja.cierre') }}">
+        <i class="bi bi-lock-fill"></i> Cierre de Caja
+    </a>
+    {% endif %}
+
+    {% if current_user.rol in ['admin', 'bodeguero', 'cocina'] %}
+    <hr class="sidebar-divider">
+    <p class="sidebar-section">Inventario</p>
+    <a class="sidebar-link {{ 'active' if request.endpoint == 'inventario.lista' }}"
+       href="{{ url_for('inventario.lista') }}">
+        <i class="bi bi-box-seam-fill"></i> Stock Actual
+    </a>
+    <a class="sidebar-link {{ 'active' if request.endpoint == 'inventario.movimiento' }}"
+       href="{{ url_for('inventario.movimiento') }}">
+        <i class="bi bi-arrow-left-right"></i> Registrar Movimiento
+    </a>
+    {% if current_user.rol in ['admin', 'bodeguero'] %}
+    <a class="sidebar-link {{ 'active' if request.endpoint == 'inventario.historial' }}"
+       href="{{ url_for('inventario.historial') }}">
+        <i class="bi bi-journal-text"></i> Historial Movimientos
+    </a>
+    {% endif %}
+    {% endif %}
+
+    {% if current_user.rol in ['admin', 'cajero', 'vendedor', 'cocina', 'bodeguero'] %}
+    <hr class="sidebar-divider">
+    <p class="sidebar-section">Catálogo</p>
+    <a class="sidebar-link {{ 'active' if 'productos' in request.endpoint }}"
+       href="{{ url_for('productos.lista') }}">
+        <i class="bi bi-grid-fill"></i> Productos
+    </a>
+    {% endif %}
+
+    {% if current_user.rol in ['admin', 'cajero'] %}
+    <a class="sidebar-link {{ 'active' if 'promociones' in request.endpoint }}"
+       href="{{ url_for('promociones.lista') }}">
+        <i class="bi bi-tag-fill"></i> Promociones
+    </a>
+    {% endif %}
+
+    {% if current_user.rol in ['admin', 'cajero'] %}
+    <hr class="sidebar-divider">
+    <p class="sidebar-section">Gestión</p>
+    <a class="sidebar-link {{ 'active' if 'reportes' in request.endpoint }}"
+       href="{{ url_for('reportes.index') }}">
+        <i class="bi bi-bar-chart-fill"></i> Reportes
+    </a>
+    {% endif %}
+
+    {% if current_user.rol == 'admin' %}
+    <a class="sidebar-link {{ 'active' if 'usuarios' in request.endpoint }}"
+       href="{{ url_for('usuarios.lista') }}">
+        <i class="bi bi-people-fill"></i> Usuarios
+    </a>
+    <a class="sidebar-link {{ 'active' if 'auditoria' in request.endpoint }}"
+       href="{{ url_for('auditoria.index') }}">
+        <i class="bi bi-shield-lock-fill"></i> Auditoría
+    </a>
+    {% endif %}
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+{% else %}
+<!-- Auth pages (no sidebar) -->
+<main>{% block content_auth %}{% endblock %}</main>
+{% endif %}
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Auto-dismiss flash after 5s -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.flash-toast').forEach(el => {
+            setTimeout(() => {
+                const bsAlert = bootstrap.Alert.getOrCreateInstance(el);
+                bsAlert.close();
+            }, 5000);
+        });
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Historial de Movimientos{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="bi bi-journal-text me-2"></i>Historial de Movimientos</h1>
+        <p class="page-subtitle">Registro de todas las entradas y salidas</p>
+    </div>
+    <a href="{{ url_for('inventario.movimiento') }}" class="btn btn-sigcafe">
+        <i class="bi bi-plus me-1"></i>Nuevo Movimiento
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header-sigcafe">
+        <i class="bi bi-list-ul me-2"></i>Movimientos
+        <span class="badge bg-light text-dark ms-auto">{{ movimientos|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Fecha / Hora</th>
+                        <th>Producto</th>
+                        <th class="text-center">Tipo</th>
+                        <th class="text-center">Cantidad</th>
+                        <th>Motivo</th>
+                        <th>Responsable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in movimientos %}
+                    <tr>
+                        <td class="small text-muted">{{ m.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td><strong>{{ m.producto.nombre if m.producto else '—' }}</strong></td>
+                        <td class="text-center">
+                            {% if m.tipo == 'entrada' %}
+                            <span class="badge bg-success"><i class="bi bi-arrow-up"></i> Entrada</span>
+                            {% else %}
+                            <span class="badge bg-danger"><i class="bi bi-arrow-down"></i> Salida</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center fw-bold">{{ m.cantidad }}</td>
+                        <td class="small">{{ m.motivo }}</td>
+                        <td>{{ m.responsable.nombre if m.responsable else '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if not movimientos %}
+        <div class="text-center p-4 text-muted">Sin movimientos registrados.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
